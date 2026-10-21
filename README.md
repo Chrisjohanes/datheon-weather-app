@@ -6,16 +6,6 @@ A responsive weather dashboard built with **HTML, CSS, vanilla JavaScript, OpenW
 
 **Website:** https://chrisjohanes.github.io/datheon-weather-app/
 
-## Screenshots
-
-<!-- Save a screenshot of the deployed GitHub Pages dashboard as:
-     screenshots/atmos-dashboard.png
-     Then commit the image to this repository. -->
-
-![Atmos weather dashboard](screenshots/Task 3 - Weather App.png)
-
-_Screenshot of the live Atmos dashboard._
-
 ## Features
 
 - Search for cities worldwide
