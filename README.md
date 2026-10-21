@@ -1,19 +1,42 @@
 # Atmos — Real-Time Weather Dashboard
 
-Atmos is a responsive weather dashboard built with HTML, CSS, vanilla JavaScript, and a small Cloudflare Worker proxy. It displays current conditions and a five-day forecast from OpenWeatherMap.
+A responsive weather dashboard built with **HTML, CSS, vanilla JavaScript, OpenWeatherMap, and Cloudflare Workers**. Atmos displays current weather conditions and a five-day forecast through a clean, responsive interface.
+
+## Live Demo
+
+**Website:** https://chrisjohanes.github.io/datheon-weather-app/
+
+## Screenshots
+
+<!-- Save a screenshot of the deployed GitHub Pages dashboard as:
+     screenshots/atmos-dashboard.png
+     Then commit the image to this repository. -->
+
+![Atmos weather dashboard](screenshots/Task 3 - Weather App.png)
+
+_Screenshot of the live Atmos dashboard._
 
 ## Features
 
-- Search cities worldwide
-- Current temperature, feels-like temperature, weather conditions, humidity, wind speed, pressure, and visibility
-- Five-day forecast cards derived from OpenWeatherMap's 3-hour forecast feed
+- Search for cities worldwide
+- Current temperature and feels-like temperature
+- Weather conditions, humidity, wind speed, pressure, and visibility
+- Five-day forecast cards based on OpenWeatherMap's three-hour forecast data
 - Weather icons and condition-based background themes
-- Loading, timeout, invalid-city, and network error states
-- Responsive desktop/mobile layout
-- `fetch`, `async/await`, `Promise.all`, and `try/catch`
-- API key stored as a server-side Cloudflare Worker secret, not in browser JavaScript
+- Loading, timeout, invalid-city, and network-error states
+- Responsive layout for desktop and mobile
+- Asynchronous requests using `fetch`, `async/await`, `Promise.all`, and `try/catch`
+- OpenWeatherMap API key stored as a Cloudflare Worker Secret, not in browser JavaScript
 
-## Project structure
+## Technology Stack
+
+- **Frontend:** HTML5, CSS3, vanilla JavaScript
+- **Weather data:** OpenWeatherMap API
+- **API proxy:** Cloudflare Workers
+- **Hosting:** GitHub Pages
+- **Version control:** Git and GitHub
+
+## Project Structure
 
 ```text
 datheon-weather-app/
@@ -22,52 +45,85 @@ datheon-weather-app/
 ├── script.js
 ├── worker/
 │   └── worker.js
+├── screenshots/
+│   └── atmos-dashboard.png
 └── README.md
 ```
 
-## Secure deployment overview
+## Architecture Overview
 
-The static frontend can be hosted on GitHub Pages. The OpenWeatherMap key must be stored as a **Cloudflare Worker Secret**, and the frontend calls the Worker API instead of calling OpenWeatherMap directly.
+1. A visitor opens the static frontend hosted on GitHub Pages.
+2. The frontend sends requests to the Cloudflare Worker for current weather or forecast data.
+3. The Worker validates the request origin and endpoint, then calls OpenWeatherMap using the server-side `OPENWEATHER_API_KEY` secret.
+4. The Worker returns the weather response to the frontend.
 
-### 1. Create a Cloudflare Worker
+The OpenWeatherMap API key must never be placed in the public frontend code or committed to the repository.
+
+## Deployment Guide
+
+### 1. Configure the Cloudflare Worker
 
 1. Sign in to Cloudflare and open **Workers & Pages**.
-2. Create a Worker and paste the contents of `worker/worker.js` into its editor.
-3. In Worker settings, add a **Secret** named `OPENWEATHER_API_KEY` and paste your OpenWeatherMap key into the secret value.
-4. Add a **Text variable** named `ALLOWED_ORIGIN` with your exact GitHub Pages origin, for example `https://YOUR_USERNAME.github.io` (no path or trailing slash).
-5. Deploy the Worker and copy its HTTPS URL.
+2. Create or open your Worker and deploy the contents of `worker/worker.js`.
+3. Under the Worker settings, add a **Secret** named `OPENWEATHER_API_KEY` containing your OpenWeatherMap API key.
+4. Add a **Text variable** named `ALLOWED_ORIGIN` with the exact frontend origin. For this project, use:
 
-### 2. Configure the frontend
+   ```text
+   https://chrisjohanes.github.io
+   ```
 
-In `script.js`, replace:
+   Do not include the repository path (`/datheon-weather-app/`) or a trailing slash.
+
+5. Save the configuration and deploy the Worker.
+
+### 2. Configure the Frontend
+
+In `script.js`, set `WEATHER_API_BASE` to your deployed Worker URL. For example:
 
 ```js
-const WEATHER_API_BASE = "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE";
+const WEATHER_API_BASE = "https://YOUR_WORKER.YOUR_SUBDOMAIN.workers.dev";
 ```
 
-with your public Worker URL, for example:
+Replace the example with your actual Worker URL. The Worker URL is public; the OpenWeatherMap API key is not.
 
-```js
-const WEATHER_API_BASE = "https://your-worker.your-subdomain.workers.dev";
-```
+### 3. Deploy the Frontend to GitHub Pages
 
-This URL is public and is not a secret. Do not place the OpenWeatherMap API key in this file.
+1. Commit the frontend files to your GitHub repository. Never commit API keys or other secrets.
+2. In the repository, open **Settings → Pages**.
+3. Select **Deploy from a branch**, choose `main` and `/(root)`, then save.
+4. Wait for GitHub Pages to publish the site.
+5. Ensure the Worker’s `ALLOWED_ORIGIN` matches the site’s origin exactly. If you use a custom domain, update the variable to that domain’s origin.
 
-### 3. Test the Worker
+### 4. Test the Application
 
-After deploying the Worker and configuring its secret and origin, open:
+Open the live demo and test the following:
 
-`https://YOUR_WORKER_URL/api/weather?city=Jakarta`
+- Search for a valid city, such as `Jakarta`
+- Confirm current weather details load
+- Confirm the five-day forecast appears
+- Search for an invalid city and confirm an error message is shown
+- Check the layout at desktop and mobile widths
 
-A direct browser navigation may be rejected by the origin check because it has no matching `Origin` header. Test from the deployed frontend or use a request that supplies the allowed `Origin` header.
+A direct browser visit to a Worker API endpoint may be rejected by the origin check because the request may not include the expected `Origin` header. Prefer testing through the deployed frontend.
 
-### 4. Deploy the frontend
+## Add or Update the Screenshot
 
-Commit the frontend files (but never an API key) to a public GitHub repository and enable GitHub Pages from `main` / root. Set `ALLOWED_ORIGIN` to the exact Pages origin. If using a custom domain, update that variable to the custom origin.
+1. Open the [live Atmos dashboard](https://chrisjohanes.github.io/datheon-weather-app/).
+2. Search for a city and wait until the current weather and forecast are visible.
+3. Capture a screenshot of the dashboard. On Windows, you can use **Win + Shift + S**.
+4. In the repository root, create a folder named `screenshots` if it does not exist.
+5. Save the screenshot as `atmos-dashboard.png` inside that folder.
+6. Commit and push the screenshot to GitHub. The image will then appear in this README.
 
-## Security notes
+## Security Notes
 
 - Never commit API keys, `.env` files, or secrets to a public repository.
-- If a key was exposed, rotate it in the OpenWeatherMap account.
-- The Worker validates the request origin and route and limits city input length. CORS is not authentication and can be spoofed by non-browser clients, so it does not prevent all abuse. For a public production service, add rate limiting/abuse controls and monitor provider usage.
-- Do not use a frontend-only environment variable to store secrets; browser JavaScript is public.
+- If an API key has been exposed, rotate it in the OpenWeatherMap account and update the Cloudflare Worker Secret.
+- The Worker validates the request origin, restricts routes, and validates city input.
+- **CORS is not authentication.** Non-browser clients can spoof request headers, so CORS alone does not prevent API abuse.
+- For a public production service, consider adding rate limiting or other abuse controls and monitoring provider usage.
+- Do not store secrets in frontend JavaScript; browser code is publicly accessible.
+
+## License
+
+No license has been specified for this project yet.
