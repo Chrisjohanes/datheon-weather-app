@@ -5,8 +5,7 @@
  * Set WEATHER_API_BASE to your deployed Cloudflare Worker URL.
  * Example: https://datheon-weather-api.<your-subdomain>.workers.dev
  */
-const WEATHER_API_BASE =
-  "https://datheon-weather-api.johaneschristian154.workers.dev";
+const WEATHER_API_BASE = "https://datheon-weather-api.johaneschristian154.workers.dev";
 
 const searchForm = document.querySelector("#search-form");
 const cityInput = document.querySelector("#city-input");
